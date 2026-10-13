@@ -790,7 +790,7 @@ class: v2
 
 # Loading tools on demand
 
-<div class="lede">MCP tools go into every request, like any tool. Send only names, and load the rest when needed.</div>
+<div class="lede">The harness sends the model only the tool names. When the model needs a tool, it searches, and the harness loads that one definition.</div>
 
 <div class="fig">
 <v-switch>
@@ -801,26 +801,22 @@ class: v2
 </v-switch>
 </div>
 
-<div class="source">Claude Code defers MCP tools by default. Anthropic measured about 77K tokens of definitions dropping to 8.7K (advanced tool use, Nov 24, 2025).</div>
+<div class="source">Playwright MCP 0.0.83's 25 tools, captured Oct 7, o200k tokens · Anthropic measured 77K tokens dropping to 8.7K (Nov 24, 2025).</div>
 
 <!--
 Direction: About 2 minutes. Three clicks.
 
-An MCP server's tools are just tools. The harness adds their definitions to the model's request on every turn, next to the shell and everything else, used or not. Playwright's 25 browser tools are about five thousand tokens, every turn.
+Every tool the model can call has a definition: its name, a description, and its arguments. Normally all of them go into every request. Loading on demand sends less. Here Playwright's MCP server is connected, with 25 tools.
 
-The fix is the same idea as skills in L10: names first, details on demand.
+The harness sends only the names: 94 tokens for all 25, plus one tool of its own, search.
 
-The old way: every definition in every request.
+Click. The model wants to click a button, so it searches for click. The harness loads the one matching definition, browser_click in full, 257 tokens.
 
-Click. The new way: the request carries only the tool names.
+Click. Now the model can call it. The harness passes the call to Playwright's server with tools/call, the same as any MCP call, and the result comes back.
 
-Click. When the model needs one, it searches. Claude Code gives it a search tool. Codex goes further: its MCP tools are not in the prompt at all, and the model finds them by searching a list in code.
+Click. Without this, all 25 definitions, 5,250 tokens, go into every request, every turn, whether the model touches the browser or not.
 
-Click. The harness adds the full definitions of just the matches.
-
-A real example: the Claude Code session I built these slides in had twelve MCP servers and 109 tools, and all 109 were names only until needed. Anthropic measured the same move at about 77 thousand tokens down to under nine.
-
-Code mode goes one step further for results: the model writes a program that calls the tools and keeps big results out of the context entirely.
+It is the same idea as skills in L10: names first, details when needed. The Claude Code session I built these slides in had twelve MCP servers and 109 tools, all names only until needed. Anthropic measured the same move at about 77 thousand tokens of definitions down to under nine. Codex goes further: its MCP tools are not in the prompt at all, and the model finds them by searching a list in code.
 
 That is MCP: two calls to a server, paid for in tokens on every request. Next: the channel that reaches the most, the browser.
 -->
