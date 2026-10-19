@@ -1,0 +1,22 @@
+# Pull new lectures, labs and demos from the course repo once a day.
+# Uses GitHub's "sync fork" API, the same thing as the Sync fork button.
+name: Sync from upstream
+
+on:
+  schedule:
+    - cron: "17 13 * * *"   # every day 13:17 UTC (22:17 KST)
+  workflow_dispatch:         # run by hand from the Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Merge upstream main into this fork
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api -X POST "repos/${{ github.repository }}/merge-upstream" \
+            -f branch=main --jq '.message'
